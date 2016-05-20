@@ -13,19 +13,27 @@ class Login extends CI_Controller {
   public function login(){
     $_POST['remote']='true';
     $_POST['user']='user0';
-    $_POST['pass']=md5('password0');
-    if($_POST['remote'] && $this->user_model->check_user($_POST['user'])){
-      if($this->user_model->check($_POST['user'], $_POST['pass'])){
-        $responce=['message'=>'success'];
+    $_POST['pass']='password0';
+
+    $creds=['user'=>$_POST['user'], 'pass'=>md5($_POST['pass'])];
+
+    if($_POST['remote'] && $this->user_model->check_user($creds['user'])){
+      if($this->user_model->check($creds['user'], $creds['pass'])){
+        $cert=shell_exec('curl --insecure -u '.'user0'.':'.'password0'.' https://gw.ubanvpn.com:943/rest/GetUserlogin');
+        $response=[
+          'message'=>'success',
+          'certificate'=>$cert
+        ];
+
       }
       else{
-        $responce=['error'=>'Incorrect user/pass, please try again'];
+        $response=['error'=>'Incorrect user/pass, please try again'];
       }
     }
     else{
-      $responce=['error'=>'Incorrect user/pass, please try again'];
+      $response=['error'=>'Incorrect user/pass, please try again'];
     }
-    echo var_dump($responce);
+    echo var_dump($response);
 
   }
 }
